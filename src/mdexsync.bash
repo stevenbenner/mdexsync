@@ -82,8 +82,8 @@ get_chapters() {
 	# select only chapters provided by a non-official scanlation group
 	# (official releases are linked to other sites and cannot be downloaded by this script)
 	filter+='| select(.relationships[] | select(.type == "scanlation_group" and .attributes.official == false))'
-	# construct the final list of data - an list of arrays with the following elements:
-	#   col 1: chapter name
+	# construct the final list of data - a list of arrays with the following elements:
+	#   col 1: chapter number
 	#   col 2: chapter ID
 	#   col 3: chapter version
 	#   col 4: chapter title
