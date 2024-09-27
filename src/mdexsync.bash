@@ -79,16 +79,15 @@ get_chapters() {
 
 	# select only the .data[] array content
 	filter='.data[]'
-	# select only chapters provided by a non-official scanlation group
+	# select only chapters not provided by an official scanlation group
 	# (official releases are linked to other sites and cannot be downloaded by this script)
-	filter+='| select(.relationships[] | select(.type == "scanlation_group" and .attributes.official == false))'
+	filter+='| select(any(.relationships[]; .type == "scanlation_group" and .attributes.official == true) | not)'
 	# construct the final list of data - a list of arrays with the following elements:
 	#   col 1: chapter number
 	#   col 2: chapter ID
 	#   col 3: chapter version
 	#   col 4: chapter title
 	#   col 5..n: scanlation group name (chapter releases can have multiple associated groups)
-	# note that this causes duplicates rows when there are multiple groups, so uniq the output after
 	filter+='| [
 		.attributes.chapter,
 		.id,
@@ -100,8 +99,7 @@ get_chapters() {
 	filter+='| join("\t")'
 
 	curl --fail --no-progress-meter --globoff "${feed_url}?${feed_params}" | \
-		jq --raw-output "${filter}" | \
-		uniq
+		jq --raw-output "${filter}"
 }
 
 get_pages() {
