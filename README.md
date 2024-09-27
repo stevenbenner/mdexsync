@@ -26,6 +26,7 @@ line interface, and easy to invoke from other scripts.
  * Minimal dependencies.
  * Uses the official [public API][apidocs].
  * Attempts to stay within rate limits.
+ * Persistent manga titles between runs.
  * Does not re-download content you have already synced.
  * Creates a directory structure that sorts reliably.
  * Will not pollute folders with partial or failed downloads.
@@ -124,3 +125,25 @@ Yotsuba&!
 │   └── ...n
 └── ...n
 ```
+
+## Persistent titles
+
+The title of a work shown on MangaDex sometimes changes as better or more
+official titles come out. For a tool like this, we want the manga title to be
+consistent between runs to avoid creating new folders and re-downloading content
+when a name is changed. The mdexsync script will save the title associated with
+a manga ID to a persistent cache file the first time it successfully fetches it.
+
+This file is stored in the [XDG][xdgspec] cache folder at this location:
+
+ * `$XDG_CACHE_HOME/mdexsync/manga_index`
+
+The XDG cache folder is typically located at `~/.cache`.
+
+[xdgspec]: https://specifications.freedesktop.org/basedir-spec/latest/
+
+### Changing the title of a downloaded work
+
+If you would like to change the title of a manga that you have downloaded then
+you will need to change the title in that file. Once you do that you can then
+rename the downloaded folder to match.

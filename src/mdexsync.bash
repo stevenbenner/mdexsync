@@ -17,6 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+declare -r PROGRAM_NAME='mdexsync'
 declare -rl API_URL='https://api.mangadex.org'
 declare -ri MAX_RETRY=5
 
@@ -131,6 +132,27 @@ save_page() {
 	fi
 }
 
+cache_title() {
+	local cache_path manga_index_path entry
+	cache_path="${XDG_CACHE_HOME:-$HOME/.cache}/${PROGRAM_NAME}"
+	manga_index_path="${cache_path}/manga_index"
+
+	# try to fetch the title from the index based on the ID
+	if [[ -f "${manga_index_path}" ]]; then
+		while read -r entry; do
+			if [[ $(cut -f1 <<< "${entry}") = "${1}" ]]; then
+				printf '%s' "$(cut -f2 <<< "${entry}")"
+				return
+			fi
+		done < "${manga_index_path}"
+	fi
+
+	# if we made it this far then there was no title in the index, so add it
+	mkdir --parents "${cache_path}"
+	echo "${1}	${2}" >> "${manga_index_path}"
+	printf '%s' "${2}"
+}
+
 sanatize_path() {
 	local str
 	str="${1}"
@@ -206,6 +228,9 @@ if [[ -z ${title} ]]; then
 	echo "Failed to get ${manga_id}."
 	exit 1;
 fi
+
+# pull the title from the saved index, or save the title if it isn't indexed
+title=$(cache_title "${manga_id}" "${title}")
 
 echo "Downloading '${title}'..."
 
