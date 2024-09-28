@@ -80,6 +80,7 @@ get_chapters() {
 		'order[chapter]=asc'
 		'order[volume]=asc'
 		'includes[]=scanlation_group'
+		'includes[]=user'
 		'limit=500'
 	)
 
@@ -93,12 +94,14 @@ get_chapters() {
 	#   col 2: chapter ID
 	#   col 3: chapter version
 	#   col 4: chapter title
-	#   col 5..n: scanlation group name (chapter releases can have multiple associated groups)
+	#   col 5: uploader username
+	#   col 6..n: scanlation group name (chapters can have multiple associated groups)
 	filter+='| [
 		.attributes.chapter,
 		.id,
 		.attributes.version,
 		.attributes.title,
+		(.relationships[] | select(.type == "user") | .attributes.username),
 		(.relationships[] | select(.type == "scanlation_group") | .attributes.name)
 	]'
 	# format the data as a tab-separated list for processing in this script
@@ -169,9 +172,10 @@ get_chapter_path() {
 	chapter_number=$(cut -f1 <<< "${1}")
 	version=$(cut -f3 <<< "${1}")
 	chapter_title=$(cut -f4 <<< "${1}")
-	groups=$(cut -f5- <<< "${1}" | sed 's/\t/ \& /g') # concat multiple groups with ampersand
+	groups=$(cut -f6- <<< "${1}" | sed 's/\t/ \& /g') # concat multiple groups with ampersand
 	if [[ -z ${groups} ]]; then
-		groups='no group'
+		# if there were no associated groups then tag with username
+		groups=$(cut -f5 <<< "${1}")
 	fi
 	IFS=. read -r number_major number_minor <<< "${chapter_number}" # split decimal
 	if [[ -n ${chapter_title} ]]; then

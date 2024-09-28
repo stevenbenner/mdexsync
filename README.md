@@ -92,8 +92,8 @@ download and ensure consistent sort order.
     - The version number is the version of that particular release. This number
       is incremented when the owner changes something. Including it in the
       folder name ensures that new updates get downloaded.
-    - Some chapters do not have associated groups. Those will be saved as
-      "[no group]".
+    - Some chapters do not have associated groups. Those will instead be tagged
+      with the username of the user who upload it.
     - There can be multiple groups associated with a release. In those cases the
       groups are concatenated with an ampersand. For example:
       "[Group A & Group B]"
