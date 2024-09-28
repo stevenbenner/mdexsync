@@ -75,7 +75,13 @@ get_title() {
 get_chapters() {
 	local feed_url feed_params filter
 	feed_url="${API_URL}/manga/${1}/feed"
-	feed_params='translatedLanguage[]=en&order[chapter]=asc&order[volume]=asc&includes[]=scanlation_group&limit=500'
+	feed_params=(
+		'translatedLanguage[]=en'
+		'order[chapter]=asc'
+		'order[volume]=asc'
+		'includes[]=scanlation_group'
+		'limit=500'
+	)
 
 	# select only the .data[] array content
 	filter='.data[]'
@@ -98,7 +104,7 @@ get_chapters() {
 	# format the data as a tab-separated list for processing in this script
 	filter+='| join("\t")'
 
-	curl --fail --no-progress-meter --globoff "${feed_url}?${feed_params}" | \
+	curl --fail --no-progress-meter --globoff "${feed_url}?$(printf '%s&' "${feed_params[@]}")" | \
 		jq --raw-output "${filter}"
 }
 
