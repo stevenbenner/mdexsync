@@ -102,8 +102,14 @@ download and ensure consistent sort order.
  * The individual page file names will be padded with zeros to be at least a
    3-digit number.
 
-In all cases slashes are replaced with a unicode "big solidus" character (`⧸`)
-to preserve the text and be compatible with file system naming restrictions.
+### Path text filters
+
+In addition to the directory naming conventions outlined above, the following
+text filters are applied in all cases:
+
+ * Slashes are replaced with a unicode "big solidus" character (`⧸`) to preserve
+   the text and be compatible with file system naming restrictions.
+ * Leading and trailing whitespace characters are removed.
 
 ### Example directory tree
 ```

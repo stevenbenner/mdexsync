@@ -164,6 +164,8 @@ sanatize_path() {
 	local str
 	str="${1}"
 	str="${str//\//⧸}" # replace slashes with unicode U+29F8 BIG SOLIDUS
+	str="${str#"${str%%[![:space:]]*}"}" # trim leading whitespace
+	str="${str%"${str##*[![:space:]]}"}" # trim trailing whitespace
 	printf '%s' "${str}"
 }
 
