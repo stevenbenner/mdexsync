@@ -217,12 +217,14 @@ download_chapter() {
 	done <<< "$(get_pages "${chapter_id}")"
 
 	# move files to their destination and clean up
-	if ! mkdir --parents "${path}"; then
+	if mkdir --parents "${path}"; then
+		mv "${temp_dir}"/* "${path}"
+		rm --recursive "${temp_dir}"
+	else
 		echo "Failed to create directory '${path}'!"
+		rm --recursive "${temp_dir}"
 		exit 1
 	fi
-	mv "${temp_dir}"/* "${path}"
-	rm --recursive "${temp_dir}"
 }
 
 # get title and make sure the provided ID is a valid target
