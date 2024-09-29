@@ -170,7 +170,7 @@ sanatize_path() {
 }
 
 get_chapter_path() {
-	local chapter_number chapter_title version groups number_major number_minor
+	local chapter_number chapter_title version groups number_major number_minor chapter_path
 	chapter_number=$(cut -f1 <<< "${1}")
 	version=$(cut -f3 <<< "${1}")
 	chapter_title=$(cut -f4 <<< "${1}")
@@ -180,24 +180,17 @@ get_chapter_path() {
 		groups=$(cut -f5 <<< "${1}")
 	fi
 	IFS=. read -r number_major number_minor <<< "${chapter_number}" # split decimal
+	printf -v chapter_path '%s/%s/c%03d.%dv%d [%s]' \
+		"${download_path}" \
+		"$(sanatize_path "${title}")" \
+		"${number_major}" \
+		"${number_minor}" \
+		"${version}" \
+		"$(sanatize_path "${groups}")"
 	if [[ -n ${chapter_title} ]]; then
-		printf '%s/%s/c%03d.%dv%d [%s] %s\n' \
-			"${download_path}" \
-			"$(sanatize_path "${title}")" \
-			"${number_major}" \
-			"${number_minor}" \
-			"${version}" \
-			"$(sanatize_path "${groups}")" \
-			"$(sanatize_path "${chapter_title}")"
-	else
-		printf '%s/%s/c%03d.%dv%d [%s]\n' \
-			"${download_path}" \
-			"$(sanatize_path "${title}")" \
-			"${number_major}" \
-			"${number_minor}" \
-			"${version}" \
-			"$(sanatize_path "${groups}")"
+		chapter_path+=" $(sanatize_path "${chapter_title}")"
 	fi
+	printf '%s' "${chapter_path}"
 }
 
 download_chapter() {
