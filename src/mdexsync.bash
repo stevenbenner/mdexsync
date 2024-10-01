@@ -66,16 +66,14 @@ done
 (( download_limit )) && download_limit=${download_limit}+1
 
 get_title() {
-	local manga_url
-	manga_url="${API_URL}/manga/${1}"
+	local manga_url="${API_URL}/manga/${1}"
 	curl --fail --no-progress-meter "${manga_url}" | \
 		jq --raw-output '.data.attributes.title.en'
 }
 
 get_chapters() {
-	local feed_url feed_params filter
-	feed_url="${API_URL}/manga/${1}/feed"
-	feed_params=(
+	local feed_url="${API_URL}/manga/${1}/feed"
+	local feed_params=(
 		'translatedLanguage[]=en'
 		'order[chapter]=asc'
 		'order[volume]=asc'
@@ -85,7 +83,7 @@ get_chapters() {
 	)
 
 	# select only the .data[] array content
-	filter='.data[]'
+	local filter='.data[]'
 	# select only chapters not provided by an official scanlation group
 	# (official releases are linked to other sites and cannot be downloaded by this script)
 	filter+='| select(any(.relationships[]; .type == "scanlation_group" and .attributes.official == true) | not)'
@@ -112,21 +110,20 @@ get_chapters() {
 }
 
 get_pages() {
-	local pages_url
-	pages_url="${API_URL}/at-home/server/${1}"
+	local pages_url="${API_URL}/at-home/server/${1}"
 	curl --fail --no-progress-meter "${pages_url}" | \
 		jq --raw-output '.baseUrl + "/data/" + .chapter.hash + "/" + .chapter.data[]'
 }
 
 save_page() {
-	local page_number file_name file_extension file_path retry
+	local page_number file_name file_extension file_path
 	printf -v page_number '%03d' "${2}"
 	file_name=$(basename -- "${1}")
 	file_extension="${file_name##*.}"
 	file_path="${3}/${page_number}.${file_extension}"
 	echo "Downloading page ${2}..."
 	if ! curl --fail --output "${file_path}" "${1}"; then
-		retry="${4}"
+		local retry="${4}"
 		if [[ $((--retry)) -gt 0 ]]; then
 			echo "Failed to save page ${2}. Retrying..."
 			echo "${1}"
@@ -140,14 +137,12 @@ save_page() {
 }
 
 cache_title() {
-	local -a cache_entry
-	local cache_path manga_index_path
-
-	cache_path="${XDG_CACHE_HOME:-$HOME/.cache}/${PROGRAM_NAME}"
-	manga_index_path="${cache_path}/manga_index"
+	local cache_path="${XDG_CACHE_HOME:-$HOME/.cache}/${PROGRAM_NAME}"
+	local manga_index_path="${cache_path}/manga_index"
 
 	# try to fetch the title from the index based on the ID
 	if [[ -f "${manga_index_path}" ]]; then
+		local -a cache_entry
 		while read -r; do
 			readarray -d $'\t' -t cache_entry < <(printf '%s' "${REPLY}")
 			if [[ ${cache_entry[0]} = "${1}" ]]; then
@@ -164,8 +159,7 @@ cache_title() {
 }
 
 sanatize_path() {
-	local str
-	str="${1}"
+	local str="${1}"
 	str="${str//\//⧸}" # replace slashes with unicode U+29F8 BIG SOLIDUS
 	str="${str#"${str%%[![:space:]]*}"}" # trim leading whitespace
 	str="${str%"${str##*[![:space:]]}"}" # trim trailing whitespace
@@ -214,7 +208,7 @@ get_chapter_path() {
 
 download_chapter() {
 	local -a chapter
-	local chapter_number chapter_id path temp_dir page_num
+	local chapter_number chapter_id path temp_dir
 
 	readarray -d $'\t' -t chapter < <(printf '%s' "${1}")
 	chapter_number=${chapter[0]}
@@ -231,7 +225,7 @@ download_chapter() {
 
 	# page download loop
 	temp_dir=$(mktemp --directory)
-	page_num=1
+	local -i page_num=1
 	while read -r page; do
 		save_page "${page}" ${page_num} "${temp_dir}" ${MAX_RETRY}
 		: $((page_num++))
