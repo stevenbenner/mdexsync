@@ -140,15 +140,18 @@ save_page() {
 }
 
 cache_title() {
-	local cache_path manga_index_path entry
+	local -a cache_entry
+	local cache_path manga_index_path
+
 	cache_path="${XDG_CACHE_HOME:-$HOME/.cache}/${PROGRAM_NAME}"
 	manga_index_path="${cache_path}/manga_index"
 
 	# try to fetch the title from the index based on the ID
 	if [[ -f "${manga_index_path}" ]]; then
-		while read -r entry; do
-			if [[ $(cut -f1 <<< "${entry}") = "${1}" ]]; then
-				printf '%s' "$(cut -f2 <<< "${entry}")"
+		while read -r; do
+			readarray -d $'\t' -t cache_entry < <(printf '%s' "${REPLY}")
+			if [[ ${cache_entry[0]} = "${1}" ]]; then
+				printf '%s' "${cache_entry[1]}"
 				return
 			fi
 		done < "${manga_index_path}"
@@ -170,23 +173,39 @@ sanatize_path() {
 }
 
 get_chapter_path() {
-	local chapter_number chapter_title version groups number_major number_minor chapter_path
-	chapter_number=$(cut -f1 <<< "${1}")
-	version=$(cut -f3 <<< "${1}")
-	chapter_title=$(cut -f4 <<< "${1}")
-	groups=$(cut -f6- <<< "${1}" | sed 's/\t/ \& /g') # concat multiple groups with ampersand
+	local -a chapter
+	readarray -d $'\t' -t chapter < <(printf '%s' "${1}")
+	local chapter_number=${chapter[0]}
+	local chapter_version=${chapter[2]}
+	local chapter_title=${chapter[3]}
+	local chapter_uploader=${chapter[4]}
+
+	# build attribution tag
+	local -i i
+	local groups=''
+	for (( i=5; i<${#chapter[@]}; i++ )); do
+		# concat multiple groups with ampersand
+		groups+=" & $(sanatize_path "${chapter[$i]}")"
+	done
+	groups=${groups:3} # trim leading space-amp-space, if present
 	if [[ -z ${groups} ]]; then
 		# if there were no associated groups then tag with username
-		groups=$(cut -f5 <<< "${1}")
+		groups="$(sanatize_path "${chapter_uploader}")"
 	fi
-	IFS=. read -r number_major number_minor <<< "${chapter_number}" # split decimal
+
+	# split chapter number decimal
+	local -i number_major number_minor
+	IFS=. read -r number_major number_minor <<< "${chapter_number}"
+
+	# build path and output
+	local chapter_path
 	printf -v chapter_path '%s/%s/c%03d.%dv%d [%s]' \
 		"${download_path}" \
 		"$(sanatize_path "${title}")" \
 		"${number_major}" \
 		"${number_minor}" \
-		"${version}" \
-		"$(sanatize_path "${groups}")"
+		"${chapter_version}" \
+		"${groups}"
 	if [[ -n ${chapter_title} ]]; then
 		chapter_path+=" $(sanatize_path "${chapter_title}")"
 	fi
@@ -194,8 +213,12 @@ get_chapter_path() {
 }
 
 download_chapter() {
+	local -a chapter
 	local chapter_number chapter_id path temp_dir page_num
-	chapter_number=$(cut -f1 <<< "${1}")
+
+	readarray -d $'\t' -t chapter < <(printf '%s' "${1}")
+	chapter_number=${chapter[0]}
+	chapter_id=${chapter[1]}
 	path="$(get_chapter_path "${1}")"
 
 	# skip anything that we already have
@@ -207,7 +230,6 @@ download_chapter() {
 	echo "Downloading chapter ${chapter_number}..."
 
 	# page download loop
-	chapter_id=$(cut -f2 <<< "${1}")
 	temp_dir=$(mktemp --directory)
 	page_num=1
 	while read -r page; do
