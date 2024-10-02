@@ -257,6 +257,10 @@ echo "Downloading '${title}'..."
 
 # main download loop
 while read -r chapter; do
+	if [[ -z ${chapter} ]]; then
+		echo "No downloadable chapter."
+		continue
+	fi
 	if (( download_limit )) && [[ $((download_limit--)) -eq 1 ]]; then
 		break
 	fi
