@@ -49,6 +49,11 @@ EOF
 	exit
 }
 
+err() {
+	echo "${1}" >&2
+	exit 1
+}
+
 # handle script options
 declare manga_id='' download_path=''
 declare -i download_limit=0
@@ -60,8 +65,8 @@ while getopts 'hm:i:p:' arg; do
 		*) usage ;;
 	esac
 done
-: "${manga_id:?Missing -i option! Run \'${0##*/} -h\' for help.}"
-: "${download_path:?Missing -p option! Run \'${0##*/} -h\' for help.}"
+[[ -z ${manga_id} ]] && err "Missing -i option! Run '${0##*/} -h' for help."
+[[ -z ${download_path} ]] && err "Missing -p option! Run '${0##*/} -h' for help."
 # +1 download limit to avoid a "download_limit_set" variable, just break on 1 instead of 0
 (( download_limit )) && download_limit=${download_limit}+1
 
@@ -130,8 +135,7 @@ save_page() {
 			sleep "$(bc <<< "scale=1; (${MAX_RETRY} / ${retry}) * 3")"
 			save_page "${1}" "${2}" "${3}" ${retry}
 		else
-			echo "Failed to save page ${2}. Giving up."
-			exit 2
+			err "Failed to save page ${2}. Giving up."
 		fi
 	fi
 }
@@ -237,18 +241,14 @@ download_chapter() {
 		mv "${temp_dir}"/* "${path}"
 		rm --recursive "${temp_dir}"
 	else
-		echo "Failed to create directory '${path}'!"
 		rm --recursive "${temp_dir}"
-		exit 1
+		err "Failed to create directory '${path}'!"
 	fi
 }
 
 # get title and make sure the provided ID is a valid target
 title=$(get_title "${manga_id}")
-if [[ -z ${title} ]]; then
-	echo "Failed to get ${manga_id}."
-	exit 1;
-fi
+[[ -z ${title} ]] && err "Failed to get ${manga_id}."
 
 # pull the title from the saved index, or save the title if it isn't indexed
 title=$(cache_title "${manga_id}" "${title}")
