@@ -2,12 +2,9 @@ NAME := mdexsync
 PREFIX ?= /usr/local
 SHELL = /bin/bash
 
-ifeq (, $(shell which shellcheck))
-$(error "Failed! Could not find shellcheck.")
-endif
-
 .PHONY: check
 check:
+	@if ! command -v shellcheck &> /dev/null; then echo "Failed! Could not find shellcheck."; exit 1; fi
 	@shellcheck src/*.bash
 
 .PHONY: install
