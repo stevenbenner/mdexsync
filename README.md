@@ -40,8 +40,21 @@ This program is written in bash and designed for use on GNU/Linux systems.
 
 ### Install from tarball
 
-Download the latest version of the script from the GitHub project page. Then
-extract the contents to whatever location you would like.
+Download the latest version of the script from the [releases page][releases] on
+GitHub. Extract the contents to some temporary directory. Then run the following
+command to install the program:
+
+```shell
+sudo make install
+```
+
+To uninstall the program you can run the following command in the same folder:
+
+```shell
+sudo make uninstall
+```
+
+[releases]: https://github.com/stevenbenner/mdexsync/releases
 
 ### Dependencies
 
