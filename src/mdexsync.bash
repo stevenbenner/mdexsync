@@ -38,6 +38,7 @@ usage() {
 		  -p DIR   Path to directory where downloaded content should be saved.
 		  -i ID    ID of the work to download.
 		  -m NUM   Maximum number of chapters to download.
+		  -v       Print verbose output.
 		  -h       Print this usage and quit.
 
 		EXAMPLES
@@ -56,12 +57,13 @@ err() {
 
 # handle script options
 declare manga_id='' download_path=''
-declare -i download_limit=0
-while getopts 'hm:i:p:' arg; do
+declare -i download_limit=0 verbose=0
+while getopts 'hvm:i:p:' arg; do
 	case ${arg} in
 		i) manga_id=${OPTARG} ;;
 		p) download_path=${OPTARG%/} ;;
 		m) download_limit=${OPTARG} ;;
+		v) verbose=1 ;;
 		*) usage ;;
 	esac
 done
@@ -221,7 +223,7 @@ download_chapter() {
 
 	# skip anything that we already have
 	if [[ -d ${path} ]]; then
-		echo "Skipping chapter ${chapter_number}. Directory already exists."
+		((verbose)) && echo "Skipping chapter ${chapter_number}. Directory already exists."
 		return
 	fi
 
@@ -267,5 +269,5 @@ while read -r chapter; do
 	download_chapter "${chapter}"
 done <<< "$(get_chapters "${manga_id}")"
 
-echo "Done."
-echo "MangaDex URL: <https://mangadex.org/title/${manga_id}>"
+((verbose)) && echo "Done."
+((verbose)) && echo "MangaDex URL: <https://mangadex.org/title/${manga_id}>"
