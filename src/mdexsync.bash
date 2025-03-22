@@ -214,11 +214,12 @@ get_chapter_path() {
 
 download_chapter() {
 	local -a chapter
-	local chapter_number chapter_id path temp_dir
+	local chapter_number chapter_id chapter_version path temp_dir
 
 	readarray -d $'\t' -t chapter < <(printf '%s' "${1}")
 	chapter_number=${chapter[0]}
 	chapter_id=${chapter[1]}
+	chapter_version=${chapter[2]}
 	path="$(get_chapter_path "${1}")"
 
 	# skip anything that we already have
@@ -237,6 +238,28 @@ download_chapter() {
 		: $((page_num++))
 		sleep 0.2
 	done <<< "$(get_pages "${chapter_id}")"
+
+	# handle version bumps without content changes
+	# if we have a previous version of the chapter then check to see if the new
+	# version is identical - if it is then update the existing version number
+	if [[ $chapter_version -gt 1 ]]; then
+		local -i i
+		local oldversion_chapter oldversion_path
+		for (( i=chapter_version-1; i>0; i-- )); do
+			chapter[2]=${i}
+			printf -v oldversion_chapter '%s\t' "${chapter[@]}"
+			oldversion_chapter=${oldversion_chapter%?}
+			oldversion_path="$(get_chapter_path "${oldversion_chapter[@]}")"
+			if [[ -d ${oldversion_path} ]] && diff "${oldversion_path}" "${temp_dir}" > /dev/null 2>&1; then
+				echo "Chapter ${chapter_number} version ${chapter_version} content is identical to existing v${i}. Renaming existing directory to v${chapter_version}."
+				rm --recursive "${temp_dir}"
+				if ! mv "${oldversion_path}" "${path}"; then
+					err "Failed to rename directory '${oldversion_path}' to '${path}'!"
+				fi
+				return
+			fi
+		done
+	fi
 
 	# move files to their destination and clean up
 	if mkdir --parents "${path}"; then
