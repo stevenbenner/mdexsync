@@ -165,6 +165,7 @@ cache_title() {
 }
 
 sanatize_path() {
+	local LC_CTYPE=C
 	local str="${1}"
 	str="${str//\//⧸}" # replace slashes with unicode U+29F8 BIG SOLIDUS
 	str="${str#"${str%%[![:space:]]*}"}" # trim leading whitespace
