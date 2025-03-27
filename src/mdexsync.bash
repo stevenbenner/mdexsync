@@ -172,6 +172,13 @@ sanatize_path() {
 	printf '%s' "${str}"
 }
 
+sanatize_filename() {
+	local str="${1}"
+	str="$(sanatize_path "${str}")"
+	str="${str#"${str%%[!.]*}"}" # trim leading dots
+	printf '%s' "${str}"
+}
+
 get_chapter_path() {
 	local -a chapter
 	readarray -d $'\t' -t chapter < <(printf '%s' "${1}")
@@ -201,7 +208,7 @@ get_chapter_path() {
 	local chapter_path
 	printf -v chapter_path '%s/%s/c%03d.%dv%d [%s]' \
 		"${download_path}" \
-		"$(sanatize_path "${title}")" \
+		"$(sanatize_filename "${title}")" \
 		"${number_major}" \
 		"${number_minor}" \
 		"${chapter_version}" \

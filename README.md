@@ -127,6 +127,7 @@ text filters are applied in all cases:
  * Slashes are replaced with a unicode "big solidus" character (`⧸`) to preserve
    the text and be compatible with file system naming restrictions.
  * Leading and trailing whitespace characters are removed.
+ * Leading dots are removed from directory names.
 
 ### Example directory tree
 ```
