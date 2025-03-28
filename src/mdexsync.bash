@@ -17,9 +17,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-declare -r PROGRAM_NAME='mdexsync'
-declare -rl API_URL='https://api.mangadex.org'
-declare -ri MAX_RETRY=5
+declare -r program_name='mdexsync'
+declare -rl api_url='https://api.mangadex.org'
+declare -ri max_retry=5
 
 usage() {
 	cat <<- EOF
@@ -73,13 +73,13 @@ done
 (( download_limit )) && download_limit=${download_limit}+1
 
 get_title() {
-	local manga_url="${API_URL}/manga/${1}"
+	local manga_url="${api_url}/manga/${1}"
 	curl --fail --no-progress-meter "${manga_url}" | \
 		jq --raw-output '.data.attributes.title.en'
 }
 
 get_chapters() {
-	local feed_url="${API_URL}/manga/${1}/feed"
+	local feed_url="${api_url}/manga/${1}/feed"
 	local feed_params=(
 		'translatedLanguage[]=en'
 		'order[chapter]=asc'
@@ -117,7 +117,7 @@ get_chapters() {
 }
 
 get_pages() {
-	local pages_url="${API_URL}/at-home/server/${1}"
+	local pages_url="${api_url}/at-home/server/${1}"
 	curl --fail --no-progress-meter "${pages_url}" | \
 		jq --raw-output '.baseUrl + "/data/" + .chapter.hash + "/" + .chapter.data[]'
 }
@@ -134,7 +134,7 @@ save_page() {
 		if [[ $((--retry)) -gt 0 ]]; then
 			echo "Failed to save page ${2}. Retrying..."
 			echo "${1}"
-			sleep "$(bc <<< "scale=1; (${MAX_RETRY} / ${retry}) * 3")"
+			sleep "$(bc <<< "scale=1; (${max_retry} / ${retry}) * 3")"
 			save_page "${1}" "${2}" "${3}" ${retry}
 		else
 			err "Failed to save page ${2}. Giving up."
@@ -143,7 +143,7 @@ save_page() {
 }
 
 cache_title() {
-	local cache_path="${XDG_CACHE_HOME:-$HOME/.cache}/${PROGRAM_NAME}"
+	local cache_path="${XDG_CACHE_HOME:-$HOME/.cache}/${program_name}"
 	local manga_index_path="${cache_path}/manga_index"
 
 	# try to fetch the title from the index based on the ID
@@ -242,7 +242,7 @@ download_chapter() {
 	temp_dir=$(mktemp --directory)
 	local -i page_num=1
 	while read -r page; do
-		save_page "${page}" ${page_num} "${temp_dir}" ${MAX_RETRY}
+		save_page "${page}" ${page_num} "${temp_dir}" ${max_retry}
 		: $((page_num++))
 		sleep 0.2
 	done <<< "$(get_pages "${chapter_id}")"
