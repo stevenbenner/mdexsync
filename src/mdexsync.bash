@@ -55,6 +55,13 @@ err() {
 	exit 1
 }
 
+# check dependencies
+declare dep=''
+for dep in bc curl diff jq
+do
+	[[ $(command -v ${dep} 2>/dev/null) ]] || err "Missing dependency: ${dep}"
+done
+
 # handle script options
 declare manga_id='' download_path=''
 declare -i download_limit=0 verbose=0
