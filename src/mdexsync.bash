@@ -1,7 +1,7 @@
 #!/bin/bash
 # MangaDex Sync Tool
 # A script to download the specified work from MangaDex and keep the
-# content sychronized with the latest versions on subsequent runs.
+# content synchronized with the latest versions on subsequent runs.
 #
 # Copyright 2025 Steven Benner
 #
