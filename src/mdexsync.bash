@@ -81,7 +81,7 @@ done
 
 get_title() {
 	local manga_url="${api_url}/manga/${1}"
-	curl --fail --no-progress-meter "${manga_url}" | \
+	curl --fail --no-progress-meter -- "${manga_url}" | \
 		jq --raw-output '.data.attributes.title.en'
 }
 
@@ -119,13 +119,13 @@ get_chapters() {
 	# format the data as a tab-separated list for processing in this script
 	filter+='| join("\t")'
 
-	curl --fail --no-progress-meter --globoff "${feed_url}?$(printf '%s&' "${feed_params[@]}")" | \
+	curl --fail --no-progress-meter --globoff -- "${feed_url}?$(printf '%s&' "${feed_params[@]}")" | \
 		jq --raw-output "${filter}"
 }
 
 get_pages() {
 	local pages_url="${api_url}/at-home/server/${1}"
-	curl --fail --no-progress-meter "${pages_url}" | \
+	curl --fail --no-progress-meter -- "${pages_url}" | \
 		jq --raw-output '.baseUrl + "/data/" + .chapter.hash + "/" + .chapter.data[]'
 }
 
@@ -136,7 +136,7 @@ save_page() {
 	file_extension="${file_name##*.}"
 	file_path="${3}/${page_number}.${file_extension}"
 	echo "Downloading page ${2}..."
-	if ! curl --fail --output "${file_path}" "${1}"; then
+	if ! curl --fail --output "${file_path}" -- "${1}"; then
 		local retry="${4}"
 		if [[ $((--retry)) -gt 0 ]]; then
 			echo "Failed to save page ${2}. Retrying..."
@@ -268,7 +268,7 @@ download_chapter() {
 			if [[ -d ${oldversion_path} ]] && diff "${oldversion_path}" "${temp_dir}" > /dev/null 2>&1; then
 				echo "Chapter ${chapter_number} version ${chapter_version} content is identical to existing v${i}. Renaming existing directory to v${chapter_version}."
 				rm --recursive "${temp_dir}"
-				if ! mv "${oldversion_path}" "${path}"; then
+				if ! mv -- "${oldversion_path}" "${path}"; then
 					err "Failed to rename directory '${oldversion_path}' to '${path}'!"
 				fi
 				return
@@ -277,8 +277,8 @@ download_chapter() {
 	fi
 
 	# move files to their destination and clean up
-	if mkdir --parents "${path}"; then
-		mv "${temp_dir}"/* "${path}"
+	if mkdir --parents -- "${path}"; then
+		mv -- "${temp_dir}"/* "${path}"
 		rm --recursive "${temp_dir}"
 	else
 		rm --recursive "${temp_dir}"
