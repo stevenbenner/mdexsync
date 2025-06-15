@@ -37,7 +37,7 @@ usage() {
 		OPTIONS
 		  -p DIR   Path to directory where downloaded content should be saved.
 		  -i ID    ID of the work to download.
-		  -m NUM   Maximum number of chapters to download.
+		  -m NUM   Maximum number of chapters to download. Unlimited if omitted.
 		  -v       Print verbose output.
 		  -h       Print this usage and quit.
 

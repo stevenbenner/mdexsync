@@ -85,13 +85,13 @@ Download first 5 chapters of Yotsuba&! to the `~/Downloads` folder:
 
 ### Options
 
-| Option   | Description                                                 |
-| :------- | :---------------------------------------------------------- |
-| `-p DIR` | Path to directory where downloaded content should be saved. |
-| `-i ID`  | ID of the work to download.                                 |
-| `-m NUM` | Maximum number of chapters to download.                     |
-| `-v`     | Print verbose output.                                       |
-| `-h`     | Print usage info and quit.                                  |
+| Option   | Description                                                   |
+| :------- | :------------------------------------------------------------ |
+| `-p DIR` | Path to directory where downloaded content should be saved.   |
+| `-i ID`  | ID of the work to download.                                   |
+| `-m NUM` | Maximum number of chapters to download. Unlimited if omitted. |
+| `-v`     | Print verbose output.                                         |
+| `-h`     | Print usage info and quit.                                    |
 
 ## Directory structure
 
