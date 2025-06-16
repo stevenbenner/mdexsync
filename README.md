@@ -158,11 +158,11 @@ consistent between runs to avoid creating new folders and re-downloading content
 when a name is changed. The mdexsync script will save the title associated with
 a manga ID to a persistent cache file the first time it successfully fetches it.
 
-This file is stored in the [XDG][xdgspec] cache folder at this location:
+This file is stored in the [XDG][xdgspec] data folder at this location:
 
- * `$XDG_CACHE_HOME/mdexsync/manga_index`
+ * `$XDG_DATA_HOME/mdexsync/manga_index`
 
-The XDG cache folder is typically located at `~/.cache`.
+The XDG data folder is typically located at `~/.local/share`.
 
 [xdgspec]: https://specifications.freedesktop.org/basedir-spec/latest/
 

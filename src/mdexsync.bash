@@ -18,6 +18,7 @@
 # limitations under the License.
 
 declare -r program_name='mdexsync'
+declare -r index_filename='manga_index'
 declare -rl api_url='https://api.mangadex.org'
 declare -ri max_retry=5
 
@@ -150,8 +151,17 @@ save_page() {
 }
 
 cache_title() {
-	local cache_path="${XDG_CACHE_HOME:-$HOME/.cache}/${program_name}"
-	local index_path="${cache_path}/manga_index"
+	local cache_path="${XDG_DATA_HOME:-$HOME/.local/share}/${program_name}"
+	local index_path="${cache_path}/${index_filename}"
+
+	# version 1.0 put this file in the $XDG_CACHE_HOME, so relocate it if found
+	local old_cache_path="${XDG_CACHE_HOME:-$HOME/.cache}/${program_name}"
+	local old_index_path="${old_cache_path}/${index_filename}"
+	if [[ -f ${old_index_path}  ]] && [[ ! -e ${index_path} ]]; then
+		mkdir --parents "${cache_path}"
+		mv "${old_index_path}" "${index_path}"
+		rmdir "${old_cache_path}"
+	fi
 
 	# try to fetch the title from the index based on the ID
 	if [[ -f "${index_path}" ]]; then
