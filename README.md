@@ -171,3 +171,9 @@ The XDG data folder is typically located at `~/.local/share`.
 If you would like to change the title of a manga that you have downloaded then
 you will need to change the title in that file. Once you do that you can then
 rename the downloaded folder to match.
+
+### Backup consideration
+
+If you backup your downloaded files then you might want to consider backing up
+the title cache file along with them. Which would let you easily restore the
+ID/title/path associations if you ever need to restore a backup.
