@@ -151,10 +151,10 @@ save_page() {
 
 cache_title() {
 	local cache_path="${XDG_CACHE_HOME:-$HOME/.cache}/${program_name}"
-	local manga_index_path="${cache_path}/manga_index"
+	local index_path="${cache_path}/manga_index"
 
 	# try to fetch the title from the index based on the ID
-	if [[ -f "${manga_index_path}" ]]; then
+	if [[ -f "${index_path}" ]]; then
 		local -a cache_entry
 		while read -r; do
 			readarray -d $'\t' -t cache_entry < <(printf '%s' "${REPLY}")
@@ -162,12 +162,12 @@ cache_title() {
 				printf '%s' "${cache_entry[1]}"
 				return
 			fi
-		done < "${manga_index_path}"
+		done < "${index_path}"
 	fi
 
 	# if we made it this far then there was no title in the index, so add it
 	mkdir --parents "${cache_path}"
-	echo "${1}	${2}" >> "${manga_index_path}"
+	echo "${1}	${2}" >> "${index_path}"
 	printf '%s' "${2}"
 }
 
