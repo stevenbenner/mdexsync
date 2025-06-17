@@ -57,10 +57,8 @@ err() {
 }
 
 # check dependencies
-declare dep=''
-for dep in bc curl diff jq
-do
-	[[ $(command -v ${dep} 2>/dev/null) ]] || err "Missing dependency: ${dep}"
+for dep in bc curl diff jq; do
+	[[ $(command -v "${dep}" 2> /dev/null) ]] || err "Missing dependency: ${dep}"
 done
 
 # handle script options
