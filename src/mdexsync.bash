@@ -234,7 +234,7 @@ download_chapter() {
 
 	# get page URLs and generate file paths to pass to curl
 	readarray -t page_urls < <(get_pages "${chapter_id}")
-	temp_dir=$(mktemp --directory)
+	temp_dir=$(mktemp --directory --tmpdir "${program_name}.XXXXXX")
 	local page_number page_url file_extension file_path
 	local -i page_num
 	for (( page_num=0; page_num<${#page_urls[@]}; page_num++ )); do
