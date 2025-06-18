@@ -64,12 +64,10 @@ This script depends on the following programs:
  * [curl][curl]: (required) For HTTP communication
  * [jq][jq]:     (required) For JSON data processing
  * [diff][diff]: (required) For chapter version deduplication
- * [bc][bc]:     (required) For retry timing math
 
 [curl]: https://curl.se/
 [jq]: https://jqlang.github.io/jq/
 [diff]: https://www.gnu.org/software/diffutils/
-[bc]: https://www.gnu.org/software/bc/
 
 ## Usage
 

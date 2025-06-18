@@ -20,7 +20,6 @@
 declare -r program_name='mdexsync'
 declare -r index_filename='manga_index'
 declare -rl api_url='https://api.mangadex.org'
-declare -ri max_retry=5
 
 usage() {
 	cat <<- EOF
@@ -57,7 +56,7 @@ err() {
 }
 
 # check dependencies
-for dep in bc curl diff jq; do
+for dep in curl diff jq; do
 	[[ $(command -v "${dep}" 2> /dev/null) ]] || err "Missing dependency: ${dep}"
 done
 
@@ -126,26 +125,6 @@ get_pages() {
 	local pages_url="${api_url}/at-home/server/${1}"
 	curl --fail --no-progress-meter -- "${pages_url}" | \
 		jq --raw-output '.baseUrl + "/data/" + .chapter.hash + "/" + .chapter.data[]'
-}
-
-save_page() {
-	local page_number file_name file_extension file_path
-	printf -v page_number '%03d' "${2}"
-	file_name=$(basename -- "${1}")
-	file_extension="${file_name##*.}"
-	file_path="${3}/${page_number}.${file_extension}"
-	echo "Downloading page ${2}..."
-	if ! curl --fail --output "${file_path}" -- "${1}"; then
-		local retry="${4}"
-		if [[ $((--retry)) -gt 0 ]]; then
-			echo "Failed to save page ${2}. Retrying..."
-			echo "${1}"
-			sleep "$(bc <<< "scale=1; (${max_retry} / ${retry}) * 3")"
-			save_page "${1}" "${2}" "${3}" ${retry}
-		else
-			err "Failed to save page ${2}. Giving up."
-		fi
-	fi
 }
 
 cache_title() {
@@ -236,7 +215,7 @@ get_chapter_path() {
 }
 
 download_chapter() {
-	local -a chapter
+	local -a chapter page_urls page_paths
 	local chapter_number chapter_id chapter_version path temp_dir
 
 	readarray -d $'\t' -t chapter < <(printf '%s' "${1}")
@@ -253,14 +232,33 @@ download_chapter() {
 
 	echo "Downloading chapter ${chapter_number}..."
 
-	# page download loop
+	# get page URLs and generate file paths to pass to curl
+	readarray -t page_urls < <(get_pages "${chapter_id}")
 	temp_dir=$(mktemp --directory)
-	local -i page_num=1
-	while read -r page; do
-		save_page "${page}" ${page_num} "${temp_dir}" ${max_retry}
-		: $((page_num++))
-		sleep 0.2
-	done <<< "$(get_pages "${chapter_id}")"
+	local page_number page_url file_extension file_path
+	local -i page_num
+	for (( page_num=0; page_num<${#page_urls[@]}; page_num++ )); do
+		printf -v page_number '%03d' $((page_num+1))
+		page_url=${page_urls[$page_num]}
+		file_extension="${page_url##*.}"
+		if [[ ${file_extension} =~ [^a-zA-Z] ]]; then
+			err "Found invalid image file extension '${file_extension}'. Aborting."
+		fi
+		file_path="${temp_dir}/${page_number}.${file_extension}"
+		page_paths+=('--output')
+		page_paths+=("${file_path}")
+	done
+
+	# download the pages
+	if ! curl \
+		--rate 5/s \
+		--retry-max-time 60 \
+		--retry-connrefused \
+		--fail-early \
+		"${page_paths[@]}" -- "${page_urls[@]}"
+	then
+		err "Failed to download all pages for chapter ${chapter_number}. Giving up."
+	fi
 
 	# handle version bumps without content changes
 	# if we have a previous version of the chapter then check to see if the new
