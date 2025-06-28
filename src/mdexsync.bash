@@ -257,6 +257,7 @@ download_chapter() {
 		--fail-early \
 		"${page_paths[@]}" -- "${page_urls[@]}"
 	then
+		rm --recursive "${temp_dir}"
 		err "Failed to download all pages for chapter ${chapter_number}. Giving up."
 	fi
 
