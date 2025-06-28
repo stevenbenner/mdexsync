@@ -55,7 +55,7 @@ To uninstall the program you can run the following command in the same folder:
 sudo make uninstall
 ```
 
-[releases]: https://github.com/stevenbenner/mdexsync/releases
+[releases]: https://github.com/stevenbenner/mdexsync/releases/latest
 
 ### Dependencies
 
