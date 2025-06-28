@@ -29,7 +29,7 @@ line interface, and easy to invoke from other scripts.
  * Persistent manga titles between runs.
  * Does not re-download content you have already synced.
  * Creates a directory structure that sorts reliably.
- * Gracefully handles multiple versions of chapters
+ * Gracefully handles multiple versions of chapters.
  * Will not pollute folders with partial or failed downloads.
  * Includes some basic retry logic to handle a transitory connection failures.
 
