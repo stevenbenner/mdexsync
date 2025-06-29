@@ -18,6 +18,7 @@
 # limitations under the License.
 
 declare -r program_name='mdexsync'
+declare -r program_version='1.0'
 declare -r index_filename='manga_index'
 declare -rl api_url='https://api.mangadex.org'
 
@@ -39,6 +40,7 @@ usage() {
 		  -i ID    ID of the work to download.
 		  -m NUM   Maximum number of chapters to download. Unlimited if omitted.
 		  -v       Print verbose output.
+		  -V       Print version information and quit.
 		  -h       Print this usage and quit.
 
 		EXAMPLES
@@ -47,6 +49,17 @@ usage() {
 
 		BUGS
 		Report bugs to <https://github.com/stevenbenner/mdexsync>.
+EOF
+	exit
+}
+
+version() {
+	cat <<- EOF
+		${program_name} ${program_version}
+		Copyright 2025 Steven Benner
+
+		This software is licensed under the Apache License, Version 2.0.
+		<https://github.com/stevenbenner/mdexsync>
 EOF
 	exit
 }
@@ -64,12 +77,13 @@ done
 # handle script options
 declare manga_id='' download_path=''
 declare -i download_limit=0 verbose=0
-while getopts 'hvm:i:p:' arg; do
+while getopts 'hvVm:i:p:' arg; do
 	case ${arg} in
 		i) manga_id=${OPTARG} ;;
 		p) download_path=${OPTARG%/} ;;
 		m) download_limit=${OPTARG} ;;
 		v) verbose=1 ;;
+		V) version ;;
 		*) usage ;;
 	esac
 done
