@@ -45,6 +45,7 @@ usage() {
 		Download first 5 chapters of Yotsuba&! to the ~/Downloads folder:
 		  ${0##*/} -p ~/Downloads -i 58be6aa6-06cb-4ca5-bd20-f1392ce451fb -m 5
 
+		BUGS
 		Report bugs to <https://github.com/stevenbenner/mdexsync>.
 EOF
 	exit
