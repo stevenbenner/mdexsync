@@ -115,14 +115,14 @@ get_chapters() {
 	# (official releases are linked to other sites and cannot be downloaded by this script)
 	filter+='| select(any(.relationships[]; .type == "scanlation_group" and .attributes.official == true) | not)'
 	# construct the final list of data - a list of arrays with the following elements:
-	#   col 1: chapter number
+	#   col 1: chapter number (or string literal "null" on empty to preserve column)
 	#   col 2: chapter ID
 	#   col 3: chapter version
 	#   col 4: chapter title
 	#   col 5: uploader username
 	#   col 6..n: scanlation group name (chapters can have multiple associated groups)
 	filter+='| [
-		.attributes.chapter,
+		.attributes.chapter // "null",
 		.id,
 		.attributes.version,
 		.attributes.title,
@@ -237,6 +237,13 @@ download_chapter() {
 	chapter_number=${chapter[0]}
 	chapter_id=${chapter[1]}
 	chapter_version=${chapter[2]}
+
+	# skip chapters that do not include a chapter number
+	if [[ ${chapter_number} = null ]]; then
+		echo "Found chapter with no chapter number. Skipping chapter id '${chapter_id}'."
+		return
+	fi
+
 	path="$(get_chapter_path "${1}")"
 
 	# skip anything that we already have
