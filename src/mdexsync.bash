@@ -18,7 +18,7 @@
 # limitations under the License.
 
 declare -r program_name='mdexsync'
-declare -r program_version='1.0'
+declare -r program_version='1.1'
 declare -r index_filename='manga_index'
 declare -rl api_url='https://api.mangadex.org'
 
