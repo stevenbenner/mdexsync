@@ -3,7 +3,7 @@
 # A script to download the specified work from MangaDex and keep the
 # content synchronized with the latest versions on subsequent runs.
 #
-# Copyright 2025 Steven Benner
+# Copyright 2026 Steven Benner
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ EOF
 version() {
 	cat <<- EOF
 		${program_name} ${program_version}
-		Copyright 2025 Steven Benner
+		Copyright 2026 Steven Benner
 
 		This software is licensed under the Apache License, Version 2.0.
 		<https://github.com/stevenbenner/mdexsync>
