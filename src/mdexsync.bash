@@ -95,7 +95,7 @@ done
 get_title() {
 	local manga_url="${api_url}/manga/${1}"
 	curl --fail --no-progress-meter -- "${manga_url}" | \
-		jq --raw-output '.data.attributes.title.en'
+		jq --raw-output '.data.attributes.title | map(.) | first'
 }
 
 get_chapters() {
